@@ -2,7 +2,7 @@ FIAP - Análise e Desenvolvimento de Sistemas (TDS)
 Java Advanced - Prof. Dr. Marcel Stefan Wagner
 CHECKPOINT 5 - PARTE I (Spring Security MVC, Deploy e PostgreSQL)
 
-Turma: ________   Curso: Análise e Desenvolvimento de Sistemas (TDS)
+Turma: 2TDSR       Curso: Análise e Desenvolvimento de Sistemas (TDS)
 
 INTEGRANTES
 - Gabriel Robertoni Padilha ............. RM 566293
