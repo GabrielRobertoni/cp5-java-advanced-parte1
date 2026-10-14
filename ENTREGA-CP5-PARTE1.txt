@@ -12,7 +12,7 @@ GITHUB DO PROJETO (README com descrição, prints e explicações, incluindo a t
 https://github.com/GabrielRobertoni/cp5-java-advanced-parte1
 
 DEPLOY (link de produção)
-https://________________________.onrender.com
+https://cp5-java-advanced-parte1.onrender.com
 
 SISTEMA UTILIZADO PARA O DEPLOY
 Render (Web Service com Docker + banco PostgreSQL gerenciado do Render)

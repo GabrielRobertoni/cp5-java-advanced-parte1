@@ -9,7 +9,7 @@ com acessos diferentes e deploy em nuvem.
 
 | | |
 |---|---|
-| 🌐 **Deploy (produção)** | `https://SEU-SERVICO.onrender.com` ← *(substituir pelo link do Render após o deploy)* |
+| 🌐 **Deploy (produção)** | [https://cp5-java-advanced-parte1.onrender.com](https://cp5-java-advanced-parte1.onrender.com) |
 | 💻 **IDE utilizada** | IntelliJ IDEA |
 | ☁️ **Plataforma de deploy** | Render (Web Service Docker + PostgreSQL gerenciado) |
 
