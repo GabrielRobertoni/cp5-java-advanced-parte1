@@ -1,0 +1,40 @@
+FIAP - Análise e Desenvolvimento de Sistemas (TDS)
+Java Advanced - Prof. Dr. Marcel Stefan Wagner
+CHECKPOINT 5 - PARTE I (Spring Security MVC, Deploy e PostgreSQL)
+
+Turma: ________   Curso: Análise e Desenvolvimento de Sistemas (TDS)
+
+INTEGRANTES
+- Gabriel Robertoni Padilha ............. RM 566293
+- Bruno Ferreira ........................ RM 563489
+
+GITHUB DO PROJETO (README com descrição, prints e explicações, incluindo a tela de login)
+https://github.com/GabrielRobertoni/cp5-java-advanced-parte1
+
+DEPLOY (link de produção)
+https://________________________.onrender.com
+
+SISTEMA UTILIZADO PARA O DEPLOY
+Render (Web Service com Docker + banco PostgreSQL gerenciado do Render)
+
+IDE UTILIZADO
+IntelliJ IDEA
+
+USUÁRIOS PARA TESTE (também exibidos na página inicial e abaixo da tela de login)
+- Administrador: admin@mercadoexpress.com   / senha: Admin@123
+- Cliente:       cliente@mercadoexpress.com / senha: Cliente@123
+- Ou crie uma conta nova pela tela "Criar conta" (Sign Up): o novo usuário recebe o perfil CLIENTE.
+
+COMO RODAR NA MAQUINA (sem instalar PostgreSQL) - detalhes no README
+- IntelliJ: executar a classe MercadoExpressApplication (ou, no terminal: mvnw spring-boot:run).
+  Sem banco configurado, a aplicacao sobe um PostgreSQL 16 embutido automaticamente.
+  Os dados ficam salvos na pasta dados-postgres (para zerar: parar o sistema e apagar a pasta).
+  Acessar http://localhost:8080
+- Ou: docker compose up --build   (com o Docker Desktop aberto)
+
+TABELAS NO POSTGRESQL
+- TDS_Sec_MVC_TB_Mercado (produtos)
+- TDS_Users_Mercado (usuários e perfis)
+
+ARQUIVO ANEXO
+- spring-initializr.png (print da configuração final do Spring Initializr)

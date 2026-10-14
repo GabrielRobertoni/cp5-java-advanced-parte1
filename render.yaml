@@ -1,0 +1,43 @@
+# =============================================================
+#  Render Blueprint - Mercado Express (CP5 Java Advanced - Parte I)
+#  Cria o PostgreSQL e o Web Service (Docker) já ligados entre si.
+#  No Render: New > Blueprint > selecione o repositório.
+#  O Render encontra este arquivo automaticamente na raiz do repositório.
+# =============================================================
+services:
+  - type: web
+    name: mercado-express
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: mercado-express-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: mercado-express-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: mercado-express-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: mercado-express-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: mercado-express-db
+          property: password
+      # As contas de avaliação (admin e cliente) usam os valores do application.yml,
+      # os mesmos exibidos na página inicial e na tela de login.
+
+databases:
+  - name: mercado-express-db
+    plan: free
+    databaseName: mercado_express
+    user: mercado

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Painel do administrador')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: cabecalho}"></header>
+
+<main class="container pagina">
+    <div class="pagina__cabecalho">
+        <div>
+            <h1>Painel do administrador</h1>
+            <p class="texto-suave">
+                Olá, <strong sec:authentication="principal.nome">admin</strong>! Esta área é restrita ao perfil
+                <strong>Administrador</strong>.
+            </p>
+        </div>
+        <a th:href="@{/produtos/novo}" class="botao">+ Novo produto</a>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <section class="grade grade--4 indicadores" aria-label="Indicadores">
+        <article class="indicador">
+            <span class="indicador__rotulo">Produtos cadastrados</span>
+            <strong class="indicador__valor" th:text="${totalProdutos}" data-testid="kpi-produtos">0</strong>
+        </article>
+        <article class="indicador">
+            <span class="indicador__rotulo">Unidades em estoque</span>
+            <strong class="indicador__valor" th:text="${unidadesEmEstoque}">0</strong>
+        </article>
+        <article class="indicador">
+            <span class="indicador__rotulo">Valor em estoque</span>
+            <strong class="indicador__valor"
+                    th:text="'R$ ' + ${#numbers.formatDecimal(valorEmEstoque, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</strong>
+        </article>
+        <article class="indicador">
+            <span class="indicador__rotulo">Usuários (admin / clientes)</span>
+            <strong class="indicador__valor" th:text="${totalAdmins} + ' / ' + ${totalClientes}">0 / 0</strong>
+        </article>
+    </section>
+
+    <section class="grade grade--2 secao">
+        <article class="cartao">
+            <h2>Produtos com estoque baixo</h2>
+            <p class="texto-suave">Itens com menos de 5 unidades.</p>
+            <p th:if="${#lists.isEmpty(estoqueBaixo)}">Nenhum produto com estoque baixo. &#128077;</p>
+            <ul class="lista-simples" th:unless="${#lists.isEmpty(estoqueBaixo)}" data-testid="lista-estoque-baixo">
+                <li th:each="p : ${estoqueBaixo}">
+                    <a th:href="@{/produtos/{id}(id=${p.id})}" th:text="${p.nome}">Produto</a>
+                    <span class="selo selo--alerta" th:text="${p.quantidadeEstoque} + ' un.'">0 un.</span>
+                </li>
+            </ul>
+        </article>
+
+        <article class="cartao">
+            <h2>Atalhos</h2>
+            <ul class="lista-atalhos">
+                <li><a th:href="@{/produtos}">Consultar e gerenciar produtos (READ / UPDATE / DELETE)</a></li>
+                <li><a th:href="@{/produtos/novo}">Cadastrar novo produto (CREATE)</a></li>
+                <li><a th:href="@{/admin/usuarios}">Gerenciar usuários e perfis de acesso</a></li>
+            </ul>
+        </article>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

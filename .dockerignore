@@ -1,0 +1,9 @@
+target/
+.idea/
+.vscode/
+*.iml
+.git/
+docs/
+README.md
+ENTREGA*.txt
+dados-postgres/

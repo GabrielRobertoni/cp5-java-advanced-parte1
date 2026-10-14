@@ -1,0 +1,46 @@
+# =============================================================
+#  Mercado Express - sobe o PostgreSQL e a aplicação juntos.
+#  Pré-requisito: Docker Desktop aberto.
+#
+#    docker compose up --build        (para parar: Ctrl+C ou "docker compose down")
+#
+#  Acesse http://localhost:8080
+#  Para apagar também os dados do banco: docker compose down -v
+# =============================================================
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: mercado-express-db
+    environment:
+      POSTGRES_DB: mercado_express
+      POSTGRES_USER: mercado
+      POSTGRES_PASSWORD: mercado123
+    ports:
+      # Porta 5433 no seu computador (para consultar pelo pgAdmin/DBeaver sem
+      # conflitar com um PostgreSQL já instalado na 5432).
+      - "5433:5432"
+    volumes:
+      - mercado-express-dados:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mercado -d mercado_express"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    container_name: mercado-express-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: mercado_express
+      DB_USER: mercado
+      DB_PASSWORD: mercado123
+    ports:
+      - "8080:8080"
+
+volumes:
+  mercado-express-dados:
