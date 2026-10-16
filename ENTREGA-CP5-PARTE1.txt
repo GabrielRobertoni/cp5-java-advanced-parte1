@@ -23,7 +23,7 @@ IntelliJ IDEA
 USUÁRIOS PARA TESTE (também exibidos na página inicial e abaixo da tela de login)
 - Administrador: admin@mercadoexpress.com   / senha: Admin@123
 - Cliente:       cliente@mercadoexpress.com / senha: Cliente@123
-- Ou crie uma conta nova pela tela "Criar conta" (Sign Up): o novo usuário recebe o perfil CLIENTE.
+- Ou crie uma conta nova pela tela "Criar conta" (Sign Up), escolhendo o tipo: Cliente ou Administrador.
 
 COMO RODAR NA MAQUINA (sem instalar PostgreSQL) - detalhes no README
 - IntelliJ: executar a classe MercadoExpressApplication (ou, no terminal: mvnw spring-boot:run).

@@ -341,3 +341,20 @@ code {
     .grade--4 { grid-template-columns: 1fr; }
     .detalhe__dados { grid-template-columns: 1fr; }
 }
+
+/* ---------------- Sign Up: tipo de conta ---------------- */
+.d-bloco { display: block; margin-top: .2rem; }
+.opcoes-perfil { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.opcoes-perfil legend { font-weight: 600; margin-bottom: .4rem; padding: 0; }
+.opcoes-perfil .opcao {
+    display: flex; align-items: flex-start; gap: .45rem; padding: .6rem .8rem; cursor: pointer; font-weight: 400;
+    border: 2px solid var(--cinza-300); border-radius: 10px; background: var(--branco);
+}
+.opcoes-perfil .opcao:has(input:checked) { border-color: var(--verde-600); background: var(--verde-100); }
+.opcoes-perfil .opcao input[type=radio] { width: auto; flex: 0 0 auto; margin: .2rem 0 0; padding: 0; border: 0; }
+.opcoes-perfil .opcao span { min-width: 0; }
+.opcoes-perfil .erro { grid-column: 1 / -1; }
+
+@media (max-width: 480px) {
+    .opcoes-perfil { grid-template-columns: 1fr; }
+}

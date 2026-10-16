@@ -26,6 +26,10 @@ As duas contas abaixo já existem no banco e também aparecem na **página inici
 > Essas duas contas são protegidas: não podem ser excluídas nem ter o perfil alterado pela tela de usuários,
 > para que o acesso continue funcionando durante a avaliação.
 
+Além delas, **qualquer pessoa pode criar uma conta nova** pela tela **Criar conta (Sign Up)**, escolhendo o tipo:
+**Cliente** ou **Administrador** (gerente). A conta é gravada na tabela `TDS_Users_Mercado` e já pode ser usada
+no login.
+
 ## 👥 Integrantes
 
 | Nome | RM |
@@ -40,13 +44,14 @@ As duas contas abaixo já existem no banco e também aparecem na **página inici
 1. [Requisitos do CP5 × o que foi implementado](#-requisitos-do-cp5--o-que-foi-implementado)
 2. [Tecnologias e configuração do Spring Initializr](#-tecnologias-e-configuração-do-spring-initializr)
 3. [Arquitetura do projeto](#-arquitetura-do-projeto)
-4. [Banco de dados PostgreSQL](#-banco-de-dados-postgresql)
-5. [Segurança: login, Sign Up e perfis](#-segurança-login-sign-up-e-perfis)
-6. [Telas da aplicação (com prints)](#-telas-da-aplicação-com-prints)
-7. [Endpoints](#-endpoints)
-8. [Como executar localmente](#-como-executar-localmente)
-9. [Testes automatizados](#-testes-automatizados)
-10. [Deploy no Render](#-deploy-no-render)
+4. [Diagramas de classes e de relacionamento](#-diagramas-de-classes-e-de-relacionamento)
+5. [Banco de dados PostgreSQL](#-banco-de-dados-postgresql)
+6. [Segurança: login, Sign Up e perfis](#-segurança-login-sign-up-e-perfis)
+7. [Telas da aplicação (com prints)](#-telas-da-aplicação-com-prints)
+8. [Endpoints](#-endpoints)
+9. [Como executar localmente](#-como-executar-localmente)
+10. [Testes automatizados](#-testes-automatizados)
+11. [Deploy no Render](#-deploy-no-render)
 
 ---
 
@@ -136,6 +141,164 @@ src/main/resources
 
 ---
 
+## 📐 Diagramas de classes e de relacionamento
+
+### Diagrama de classes – domínio
+
+Entidades JPA e o enum de perfis. Cada usuário tem um perfil (ADMIN ou CLIENTE), escolhido no Sign Up.
+
+```mermaid
+classDiagram
+    direction LR
+    class Usuario {
+        -Long id
+        -String nome
+        -String email
+        -String senha
+        -Perfil perfil
+        -LocalDateTime criadoEm
+    }
+    class Produto {
+        -Long id
+        -String nome
+        -String tipo
+        -String setor
+        -String tamanho
+        -BigDecimal preco
+        -Integer quantidadeEstoque
+        -String descricao
+        -LocalDateTime criadoEm
+        -LocalDateTime atualizadoEm
+        +isEstoqueBaixo() boolean
+    }
+    class Perfil {
+        <<enumeration>>
+        ADMIN
+        CLIENTE
+        +getDescricao() String
+        +getAuthority() String
+    }
+    class CadastroForm {
+        -Perfil perfil
+        -String nome
+        -String email
+        -String senha
+        -String confirmacaoSenha
+        +isSenhasConferem() boolean
+    }
+    class UsuarioAutenticado {
+        -Long id
+        -String nome
+        -String email
+        -Perfil perfil
+        +getAuthorities() Collection
+    }
+    Usuario --> Perfil
+    CadastroForm --> Perfil
+    UsuarioAutenticado ..> Usuario : criado a partir de
+    UsuarioAutenticado --> Perfil
+```
+
+### Diagrama de classes – camadas (MVC + Spring Security)
+
+```mermaid
+classDiagram
+    direction TB
+    class HomeController {
+        +index() String
+        +login(Authentication) String
+    }
+    class CadastroController {
+        +formulario() String
+        +cadastrar(CadastroForm) String
+    }
+    class ProdutoController {
+        +listar(q, setor) String
+        +detalhe(id) String
+        +criar(Produto) String
+        +atualizar(id, Produto) String
+        +excluir(id) String
+    }
+    class AdminController {
+        +painel() String
+        +usuarios() String
+        +alterarPerfil(id, Perfil) String
+        +excluirUsuario(id) String
+    }
+    class UsuarioService {
+        +cadastrar(CadastroForm) Usuario
+        +alterarPerfil(id, Perfil, emailAdmin) Usuario
+        +excluir(id, emailAdmin) Usuario
+    }
+    class ProdutoService {
+        +buscar(termo, setor) List
+        +criar(Produto) Produto
+        +atualizar(id, Produto) Produto
+        +excluir(id) Produto
+    }
+    class UsuarioRepository {
+        <<interface>>
+        +findByEmailIgnoreCase(email) Optional
+    }
+    class ProdutoRepository {
+        <<interface>>
+        +buscar(termo, setor) List
+    }
+    class SecurityConfig {
+        +filterChain(HttpSecurity) SecurityFilterChain
+    }
+    class UsuarioDetailsService {
+        +loadUserByUsername(email) UserDetails
+    }
+    class LoginSucessoHandler {
+        +destinoPorPerfil(Authentication)$ String
+    }
+    class LoginFalhaHandler {
+        +onAuthenticationFailure()
+    }
+    CadastroController --> UsuarioService
+    AdminController --> UsuarioService
+    AdminController --> ProdutoService
+    ProdutoController --> ProdutoService
+    UsuarioService --> UsuarioRepository
+    ProdutoService --> ProdutoRepository
+    SecurityConfig --> LoginSucessoHandler
+    SecurityConfig --> LoginFalhaHandler
+    UsuarioDetailsService --> UsuarioRepository
+    LoginFalhaHandler --> UsuarioService : e-mail sem conta vai ao Sign Up
+```
+
+### Diagrama de relacionamento (banco de dados)
+
+As duas tabelas do PostgreSQL, criadas pelo Flyway. Elas são independentes: o perfil fica na própria tabela de
+usuários, e os produtos não pertencem a um usuário.
+
+```mermaid
+erDiagram
+    TDS_USERS_MERCADO {
+        BIGINT id PK
+        VARCHAR nome
+        VARCHAR email UK
+        VARCHAR senha "hash BCrypt"
+        VARCHAR perfil "ADMIN ou CLIENTE"
+        TIMESTAMP criado_em
+    }
+    TDS_SEC_MVC_TB_MERCADO {
+        BIGINT id PK
+        VARCHAR nome
+        VARCHAR tipo
+        VARCHAR setor
+        VARCHAR tamanho
+        NUMERIC preco "maior que zero"
+        INTEGER quantidade_estoque "zero ou mais"
+        VARCHAR descricao
+        TIMESTAMP criado_em
+        TIMESTAMP atualizado_em
+    }
+```
+
+---
+
 ## 🐘 Banco de dados PostgreSQL
 
 As tabelas são criadas e versionadas pelo **Flyway** ([`V1__criar_tabelas.sql`](src/main/resources/db/migration/V1__criar_tabelas.sql)).
@@ -200,8 +363,9 @@ spring:
 | Cadastrar, editar e excluir produtos | ❌ | ❌ (403) | ✅ |
 | Painel gerencial e gestão de usuários | ❌ | ❌ (403) | ✅ |
 
-Quem se cadastra pelo Sign Up **sempre** recebe o perfil **CLIENTE** (o formulário não permite escolher o perfil).
-Somente um ADMIN pode promover um cliente a administrador na tela **Usuários**.
+No Sign Up a pessoa escolhe o **tipo de conta**: **Cliente** (marcado por padrão) ou **Administrador** (gerente).
+Assim é possível cadastrar novos gerentes e novos clientes. Um ADMIN também pode mudar o perfil de qualquer conta
+(exceto as duas de avaliação) na tela **Usuários**.
 
 ### Regras no `SecurityConfig`
 
@@ -240,7 +404,8 @@ http
      deve-se redirecioná-lo para uma tela de Sign Up"*);
    - **existe, mas a senha está errada** → volta para `/login?erro` com a mensagem *"E-mail ou senha incorretos"*.
 5. **Sign Up:** `POST /cadastro` valida nome, e-mail, senha (6 a 72 caracteres) e confirmação; recusa e-mail repetido;
-   grava o usuário como **CLIENTE** com a senha em BCrypt e volta ao login com o e-mail preenchido.
+   grava o usuário com o **tipo de conta escolhido** (Cliente ou Administrador) e a senha em BCrypt, e volta ao login
+   com o e-mail preenchido. No login, cada perfil vai para a sua área.
 
 **Exemplo — formulário da tela de login** ([`login.html`](src/main/resources/templates/login.html)):
 
@@ -319,7 +484,7 @@ Com a senha errada, a mensagem de erro aparece na própria tela:
 
 ### 3. Sign Up (usuário sem login)
 Quem tenta entrar com um e-mail que não tem conta é redirecionado ao cadastro, com aviso e e-mail já preenchido.
-As validações aparecem campo a campo:
+No cadastro a pessoa escolhe o **tipo de conta** (Cliente ou Administrador). As validações aparecem campo a campo:
 
 ![Sign Up com validação](docs/prints/03-signup-validacao.png)
 
@@ -510,13 +675,13 @@ também: `docker compose down -v`.
 ./mvnw test
 ```
 
-São **64 testes** (54 de integração, que sobem a aplicação inteira contra um **PostgreSQL 16 real embarcado**, e 10 do modo local)
+São **67 testes** (57 de integração, que sobem a aplicação inteira contra um **PostgreSQL 16 real embarcado**, e 10 do modo local)
 (biblioteca zonky). Não é preciso ter Docker nem banco instalado para rodar os testes. Eles cobrem:
 
 | Classe | O que verifica |
 |---|---|
 | `RotasPublicasTest` | landing `index.html`, login próprio (não é a tela padrão), contas de avaliação visíveis na landing e no login, rotas protegidas, cabeçalhos de segurança |
-| `AutenticacaoTest` | redirecionamento por perfil, senha errada, **sem conta → Sign Up**, CSRF, logout, Sign Up (validações, e-mail duplicado, BCrypt, não permite virar ADMIN) |
+| `AutenticacaoTest` | redirecionamento por perfil, senha errada, **sem conta → Sign Up**, CSRF, logout, Sign Up de **Cliente e de Administrador** (validações, tipo de conta inválido, e-mail duplicado, BCrypt) |
 | `ProdutoCrudTest` | **CREATE, READ, UPDATE (PUT) e DELETE** gravando no PostgreSQL, validações, busca, 404, painel |
 | `ControleDeAcessoClienteTest` | CLIENTE só consulta: 403 em criação/edição/exclusão e na área admin |
 | `AdminUsuariosTest` | promover/rebaixar perfil, excluir usuário, proteções contra o próprio admin, contas de avaliação protegidas |

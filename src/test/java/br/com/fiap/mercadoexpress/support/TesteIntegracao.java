@@ -8,6 +8,7 @@ import org.springframework.test.context.DynamicPropertySource;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.Duration;
 
 /**
  * Base dos testes de integração.
@@ -29,7 +30,8 @@ public abstract class TesteIntegracao {
 
     private static EmbeddedPostgres iniciarPostgres() {
         try {
-            EmbeddedPostgres postgres = EmbeddedPostgres.builder().start();
+            // Espera maior que o padrão (10 s): em computadores mais lentos o PostgreSQL demora para subir
+            EmbeddedPostgres postgres = EmbeddedPostgres.builder().setPGStartupWait(Duration.ofMinutes(2)).start();
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
                     postgres.close();

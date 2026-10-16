@@ -90,7 +90,7 @@ class PostgresEmbutidoTest {
                 saida.append(linha).append('\n');
             }
         }
-        assertThat(outraJvm.waitFor(60, TimeUnit.SECONDS)).isTrue();
+        assertThat(outraJvm.waitFor(4, TimeUnit.MINUTES)).isTrue();
         assertThat(saida.toString()).contains("PRONTO");
 
         File pidFile = new File(dados, "postmaster.pid");

@@ -75,6 +75,8 @@ final class PostgresEmbutido {
     private static Servidor subir(String nomeBanco, File pasta, boolean persistente, String motivo)
             throws IOException, SQLException {
         EmbeddedPostgres postgres = EmbeddedPostgres.builder()
+                // Espera maior que o padrão (10 s): em computadores mais lentos o PostgreSQL demora para subir
+                .setPGStartupWait(Duration.ofMinutes(2))
                 .setDataDirectory(pasta)
                 // Temporário: apagado ao encerrar. Persistente: mantido para a próxima execução.
                 .setCleanDataDirectory(!persistente)

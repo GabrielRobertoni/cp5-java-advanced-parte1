@@ -5,6 +5,7 @@ import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.time.Duration;
 
 /**
  * Executada em OUTRA JVM pelos testes: sobe um PostgreSQL com dados persistentes, grava um registro e
@@ -18,6 +19,7 @@ public class OrfaoHelper {
                 .setDataDirectory(pasta)
                 .setCleanDataDirectory(false)
                 .setRegisterShutdownHook(false)
+                .setPGStartupWait(Duration.ofMinutes(2))
                 .start();
         try (Connection conexao = postgres.getPostgresDatabase().getConnection();
              Statement sql = conexao.createStatement()) {
